@@ -36,4 +36,357 @@
   label { display: block; margin: 12px 0 6px; font-weight: 600; }
   .check { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
   .check input { width: 28px; height: 28px; }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space:
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ask { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+  .hidden { display: none !important; }
+  .small { font-size: .85em; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Descritor de Imagens</h1>
+  <p class="lead">Tire uma foto ou escolha uma imagem da galeria. O app descreve o que há na imagem e lê em voz alta os textos e números.</p>
+
+  <details id="keyBox">
+    <summary>🔑 Chave de acesso da IA (Gemini, grátis)</summary>
+    <p class="small">Cole aqui a sua chave gratuita do Google Gemini (aistudio.google.com) e toque em Salvar. Ela fica guardada apenas neste navegador, neste aparelho, e é enviada somente para o Google. Você só precisa fazer isso uma vez em cada aparelho.</p>
+    <label for="apikey">Sua chave</label>
+    <input type="password" id="apikey" autocomplete="off" style="width:100%" placeholder="Cole sua chave aqui">
+    <div class="check">
+      <input type="checkbox" id="showKey">
+      <label for="showKey" style="margin:0">Mostrar a chave que colei</label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button type="button" class="primary" id="btnSaveKey">💾 Salvar chave neste navegador</button>
+      <button type="button" id="btnClearKey">🗑️ Remover chave salva</button>
+    </div>
+    <p id="keyStatus" role="status" aria-live="polite" style="font-weight:700;margin:10px 0 0"></p>
+  </details>
+
+  <div class="row" role="group" aria-label="Escolher imagem" style="margin-top:18px">
+    <button type="button" class="primary" id="btnCamera">📷 Tirar foto</button>
+    <button type="button" id="btnGallery">🖼️ Escolher da galeria</button>
+  </div>
+  <input type="file" id="inCamera" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true">
+  <input type="file" id="inGallery" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true">
+
+  <div id="status" role="status" aria-live="polite"></div>
+  <img id="preview" alt="Imagem escolhida">
+
+  <section id="result" class="hidden" aria-labelledby="hResult" tabindex="-1">
+    <h2 id="hResult">Resultado</h2>
+
+    <h3 id="hDesc">Descrição</h3>
+    <p class="out" id="outDesc" aria-labelledby="hDesc"></p>
+
+    <h3 id="hTxt">Textos e números</h3>
+    <p class="out" id="outTxt" aria-labelledby="hTxt"></p>
+
+    <div class="controls" role="group" aria-label="Controles de leitura em voz alta">
+      <button type="button" class="primary" id="btnAll">▶ Ler tudo</button>
+      <button type="button" id="btnTxt">🔢 Ler só textos e números</button>
+      <button type="button" id="btnDesc">👁️ Ler só a descrição</button>
+      <button type="button" id="btnPause">⏸ Pausar</button>
+      <button type="button" id="btnStop">⏹ Parar</button>
+    </div>
+  </section>
+
+  <section id="askBox" class="hidden" aria-labelledby="hAsk">
+    <h2 id="hAsk">Perguntar sobre a imagem</h2>
+    <div class="ask">
+      <input type="text" id="question" placeholder="Ex.: Qual é a data de validade?" aria-label="Sua pergunta sobre a imagem">
+      <button type="button" id="btnMic" aria-label="Perguntar por voz">🎤 Falar</button>
+    </div>
+    <button type="button" class="primary" id="btnAsk" style="margin-top:10px;width:100%">Enviar pergunta</button>
+    <p class="out" id="outAnswer" aria-live="polite" style="margin-top:12px"></p>
+  </section>
+
+  <section aria-labelledby="hSet">
+    <h2 id="hSet">Configurações de voz</h2>
+    <label for="voice">Voz</label>
+    <select id="voice" style="width:100%"></select>
+    <label for="rate">Velocidade da fala: <span id="rateVal">1,0x</span></label>
+    <input type="range" id="rate" min="0.6" max="2" step="0.1" value="1" style="width:100%;height:40px">
+    <div class="check">
+      <input type="checkbox" id="auto" checked>
+      <label for="auto" style="margin:0">Ler o resultado em voz alta automaticamente</label>
+    </div>
+    <p class="small" style="margin-top:10px">Se você já usa um leitor de tela (TalkBack, VoiceOver, NVDA), desmarque a opção acima para evitar vozes duplicadas.</p>
+  </section>
+
+  <p class="small" style="margin-top:24px">A IA pode errar. Em remédios, dinheiro, documentos e contas, confirme com outra pessoa antes de decidir. Este app usa o plano gratuito do Google Gemini: o Google pode usar as imagens enviadas para melhorar seus produtos. Evite enviar documentos pessoais ou sigilosos.</p>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $('status');
+  let current = null; // { base64, mediaType }
+
+  // Modelos tentados em ordem (se um não estiver disponível ou estourar o limite, tenta o próximo)
+  const MODELS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest'];
+  const SYSTEM = `Você é um assistente de acessibilidade que descreve imagens para pessoas cegas ou com baixa visão, em português do Brasil. Seu texto será lido em voz alta, então escreva frases curtas e naturais, sem markdown, sem listas com símbolos e sem emojis.
+
+Responda SEMPRE neste formato, com as tags exatamente assim:
+
+<descricao>
+Comece com uma visão geral em uma frase (o que é a imagem e onde parece estar). Depois descreva, do mais importante ao menos importante: pessoas (quantidade, posição, expressões, roupas, sem inferir identidade), objetos, cores, ambiente, e posição dos elementos (esquerda, direita, centro, ao fundo). Seja concreto e objetivo. Se houver perigo visível (degrau, fogo, objeto cortante, trânsito), diga logo no início.
+</descricao>
+<textos>
+Transcreva literalmente TODO texto e TODOS os números legíveis na imagem (placas, rótulos, telas, documentos, preços, datas, validade, doses), na ordem de leitura. Para cada número, leia por extenso quando ajudar (ex.: "R$ 12,50, doze reais e cinquenta centavos"). Se um trecho estiver ilegível ou parcial, diga isso claramente em vez de adivinhar. Se não houver nenhum texto ou número, escreva exatamente: Não há texto nem números visíveis.
+</textos>
+
+Regras: nunca invente conteúdo; se algo estiver incerto, diga "parece" ou "não dá para ter certeza". Não identifique pessoas pelo rosto. Em imagens de remédios, dinheiro, documentos ou contas, transcreva com máximo cuidado e avise que vale confirmar com outra pessoa antes de decisões importantes.
+
+Se o usuário fizer uma pergunta específica sobre a imagem, responda APENAS com <resposta>...</resposta>, de forma direta e curta, com a mesma regra de não inventar.`;
+
+  // ---------- Status ----------
+  function setStatus(msg, kind = '') {
+    statusEl.textContent = msg;
+    statusEl.className = kind;
+  }
+
+  // ---------- Chave da API (guardada só neste aparelho) ----------
+  const getSavedKey = () => { try { return localStorage.getItem('apikey') || ''; } catch { return ''; } };
+  const getKey = () => getSavedKey();
+  function refreshKeyUI() {
+    const has = !!getKey();
+    $('keyBox').open = !has;
+    $('keyStatus').textContent = has ? 'Chave salva neste navegador. Você não precisa colar de novo neste aparelho.' : 'Nenhuma chave salva ainda.';
+  }
+  $('btnSaveKey').addEventListener('click', () => {
+    const k = $('apikey').value.trim();
+    if (k.length < 20 || /\s/.test(k)) { $('keyStatus').textContent = 'Essa chave não parece válida. Copie a chave inteira, sem espaços.'; return; }
+    try { localStorage.setItem('apikey', k); } catch { $('keyStatus').textContent = 'Não foi possível salvar neste navegador.'; return; }
+    $('apikey').value = '';
+    refreshKeyUI();
+    $('keyBox').open = false;
+    setStatus('Chave salva. Agora escolha uma imagem.', 'ok');
+  });
+  $('btnClearKey').addEventListener('click', () => {
+    try { localStorage.removeItem('apikey'); } catch {}
+    $('apikey').value = '';
+    refreshKeyUI();
+  });
+  $('showKey').addEventListener('change', (e) => { $('apikey').type = e.target.checked ? 'text' : 'password'; });
+  refreshKeyUI();
+
+  // ---------- Voz (síntese) ----------
+  const synth = window.speechSynthesis;
+  let voices = [];
+  function loadVoices() {
+    if (!synth) return;
+    voices = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith('pt'));
+    const sel = $('voice');
+    sel.innerHTML = '';
+    (voices.length ? voices : synth.getVoices()).forEach((v) => {
+      const o = document.createElement('option');
+      o.value = v.name; o.textContent = `${v.name} (${v.lang})`;
+      sel.appendChild(o);
+    });
+    const saved = localStorage.getItem('voice');
+    if (saved) sel.value = saved;
+  }
+  if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+
+  $('voice').addEventListener('change', (e) => localStorage.setItem('voice', e.target.value));
+  $('rate').value = localStorage.getItem('rate') || '1';
+  const showRate = () => { $('rateVal').textContent = Number($('rate').value).toFixed(1).replace('.', ',') + 'x'; };
+  showRate();
+  $('rate').addEventListener('input', () => { localStorage.setItem('rate', $('rate').value); showRate(); });
+  $('auto').checked = localStorage.getItem('auto') !== '0';
+  $('auto').addEventListener('change', () => localStorage.setItem('auto', $('auto').checked ? '1' : '0'));
+
+  // Divide em frases para evitar o corte de falas longas em alguns navegadores
+  function chunk(text) {
+    const parts = text.replace(/\s+/g, ' ').match(/[^.!?;\n]+[.!?;]*/g) || [text];
+    const out = [];
+    let buf = '';
+    for (const p of parts) {
+      if ((buf + p).length > 180) { if (buf) out.push(buf.trim()); buf = p; } else buf += p;
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  }
+
+  function speak(text) {
+    if (!synth) { setStatus('Seu navegador não suporta leitura em voz alta.', 'err'); return; }
+    stop();
+    const v = [...synth.getVoices()].find((x) => x.name === $('voice').value);
+    chunk(text).forEach((part) => {
+      const u = new SpeechSynthesisUtterance(part);
+      u.lang = v ? v.lang : 'pt-BR';
+      if (v) u.voice = v;
+      u.rate = Number($('rate').value);
+      synth.speak(u);
+    });
+  }
+  function stop() { if (synth) { synth.resume(); synth.cancel(); } $('btnPause').textContent = '⏸ Pausar'; }
+
+  // ---------- Imagem ----------
+  async function prepare(file) {
+    let bmp;
+    try {
+      bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch {
+      throw new Error('Não consegui abrir essa imagem. Tente uma foto em JPG ou PNG.');
+    }
+    const MAX = 1568;
+    const scale = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+    const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(bmp, 0, 0, w, h);
+    const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.88));
+    const dataUrl = await new Promise((resolve) => {
+      const fr = new FileReader(); fr.onload = () => resolve(fr.result); fr.readAsDataURL(blob);
+    });
+    return { dataUrl, base64: dataUrl.split(',')[1], mediaType: 'image/jpeg' };
+  }
+
+  const tag = (text, name) => {
+    const m = text.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`, 'i'));
+    return m ? m[1].trim() : '';
+  };
+
+  async function call(question) {
+    const key = getKey();
+    if (!key) {
+      $('keyBox').open = true;
+      $('apikey').focus();
+      throw new Error('Cadastre sua chave de acesso primeiro, no campo acima.');
+    }
+    const userText = question
+      ? `Pergunta sobre a imagem: ${String(question).slice(0, 500)}`
+      : 'Descreva esta imagem e transcreva os textos e números.';
+
+    let r;
+    for (const model of MODELS) {
+      try {
+        r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM }] },
+            contents: [{
+              role: 'user',
+              parts: [
+                { inline_data: { mime_type: current.mediaType, data: current.base64 } },
+                { text: userText },
+              ],
+            }],
+            generation_config: { max_output_tokens: 4096 },
+          }),
+        });
+      } catch {
+        throw new Error('Sem conexão com a internet. Verifique e tente de novo.');
+      }
+      if (r.ok || ![404, 429, 503].includes(r.status)) break;
+    }
+
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      const msg = (body.error && body.error.message) || '';
+      if (r.status === 400 && /api key/i.test(msg)) throw new Error('Chave inválida. Confira a chave cadastrada.');
+      if (r.status === 403) throw new Error('Esta chave não tem permissão. Gere uma nova chave no Google AI Studio.');
+      if (r.status === 429) throw new Error('O limite gratuito foi atingido por agora. Aguarde um minuto e tente de novo; se continuar, volte mais tarde.');
+      throw new Error('A IA não conseguiu analisar agora. Tente de novo.');
+    }
+    const data = await r.json();
+    const raw = (((data.candidates || [])[0] || {}).content || {}).parts
+      ? data.candidates[0].content.parts.map((p) => p.text || '').join('\n')
+      : '';
+    if (!raw) throw new Error('A IA não devolveu resposta para esta imagem. Tente outra foto.');
+    const resposta = tag(raw, 'resposta');
+    const descricao = tag(raw, 'descricao');
+    const textos = tag(raw, 'textos');
+    return { descricao: descricao || (resposta ? '' : raw), textos, resposta };
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    stop();
+    $('result').classList.add('hidden');
+    $('askBox').classList.add('hidden');
+    $('outAnswer').textContent = '';
+    setStatus('Analisando a imagem. Aguarde alguns segundos.');
+    try {
+      current = await prepare(file);
+      const img = $('preview');
+      img.src = current.dataUrl; img.style.display = 'block';
+      const data = await call();
+      $('outDesc').textContent = data.descricao || 'Sem descrição.';
+      $('outTxt').textContent = data.textos || 'Não há texto nem números visíveis.';
+      img.alt = (data.descricao || 'Imagem analisada').slice(0, 250);
+      $('result').classList.remove('hidden');
+      $('askBox').classList.remove('hidden');
+      setStatus('Pronto. A análise está abaixo.', 'ok');
+      $('result').focus();
+      if ($('auto').checked) speakAll();
+    } catch (e) {
+      setStatus(e.message || 'Algo deu errado. Tente novamente.', 'err');
+    }
+  }
+
+  const speakAll = () => speak(`Descrição. ${$('outDesc').textContent}. Textos e números. ${$('outTxt').textContent}`);
+  const speakTxt = () => speak(`Textos e números. ${$('outTxt').textContent}`);
+  const speakDesc = () => speak(`Descrição. ${$('outDesc').textContent}`);
+
+  // ---------- Eventos ----------
+  $('btnCamera').addEventListener('click', () => $('inCamera').click());
+  $('btnGallery').addEventListener('click', () => $('inGallery').click());
+  for (const id of ['inCamera', 'inGallery']) {
+    $(id).addEventListener('change', (e) => { handleFile(e.target.files[0]); e.target.value = ''; });
+  }
+  $('btnAll').addEventListener('click', speakAll);
+  $('btnTxt').addEventListener('click', speakTxt);
+  $('btnDesc').addEventListener('click', speakDesc);
+  $('btnStop').addEventListener('click', stop);
+  $('btnPause').addEventListener('click', () => {
+    if (!synth) return;
+    if (synth.paused) { synth.resume(); $('btnPause').textContent = '⏸ Pausar'; }
+    else { synth.pause(); $('btnPause').textContent = '▶ Continuar'; }
+  });
+
+  async function ask() {
+    const q = $('question').value.trim();
+    if (!q || !current) { setStatus('Escreva ou fale uma pergunta primeiro.', 'err'); return; }
+    setStatus('Buscando a resposta.');
+    try {
+      const data = await call(q);
+      const ans = data.resposta || data.descricao || 'Não consegui responder.';
+      $('outAnswer').textContent = ans;
+      setStatus('Resposta pronta.', 'ok');
+      if ($('auto').checked) speak(ans);
+    } catch (e) { setStatus(e.message, 'err'); }
+  }
+  $('btnAsk').addEventListener('click', ask);
+  $('question').addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+
+  // ---------- Ditado (reconhecimento de voz) ----------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    $('btnMic').classList.add('hidden');
+    $('btnMic').parentElement.style.gridTemplateColumns = '1fr';
+  } else {
+    const rec = new SR();
+    rec.lang = 'pt-BR'; rec.interimResults = false; rec.maxAlternatives = 1;
+    let listening = false;
+    $('btnMic').addEventListener('click', () => {
+      if (listening) { rec.stop(); return; }
+      stop();
+      try { rec.start(); } catch {}
+    });
+    rec.onstart = () => { listening = true; $('btnMic').textContent = '⏹ Parar'; setStatus('Estou ouvindo. Fale sua pergunta.'); };
+    rec.onend = () => { listening = false; $('btnMic').textContent = '🎤 Falar'; };
+    rec.onerror = () => setStatus('Não consegui ouvir. Verifique a permissão do microfone.', 'err');
+    rec.onresult = (e) => {
+      $('question').value = e.results[0][0].transcript;
+      setStatus('Pergunta captada. Enviando.');
+      ask();
+    };
+  }
+})();
+</script>
+</body>
+</html>
