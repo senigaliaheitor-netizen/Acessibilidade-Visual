@@ -1,227 +1,302 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="claro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A5F5F">
 <title>Descritor de Imagens</title>
 <style>
-  :root {
-    --bg: #0b0b0f; --fg: #ffffff; --muted: #c9ccd6; --card: #16171f;
-    --accent: #ffd60a; --accent-fg: #000; --line: #3a3d4d; --ok: #7CFC9A; --err: #ff8a80;
+  :root { --fs: 22px; }
+  html { font-size: var(--fs); }
+
+  /* Paleta "Cuidado": verdes-água e branco, contraste alto, sem cores agressivas */
+  html[data-theme="claro"] {
+    --bg: #F3FAF8; --card: #FFFFFF; --fg: #0F2E2B; --muted: #41625E; --line: #BCD8D3;
+    --primary: #0A5F5F; --primary-fg: #FFFFFF; --soft: #DCF1EC; --soft-fg: #0F2E2B;
+    --focus: #1B5FC4; --ok: #1B7F5C; --err: #A8322D; --warn: #8A5A00;
   }
+  html[data-theme="escuro"] {
+    --bg: #0C2225; --card: #13363A; --fg: #E9F7F4; --muted: #A9CBC6; --line: #2C5A5F;
+    --primary: #7FE0D0; --primary-fg: #05302F; --soft: #1C4A4F; --soft-fg: #E9F7F4;
+    --focus: #9CC8FF; --ok: #7BE0A8; --err: #FFB4A9; --warn: #FFD27A;
+  }
+
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 20px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
-  h1 { font-size: 1.6rem; margin: 8px 0 4px; }
-  h2 { font-size: 1.25rem; margin: 0 0 8px; }
-  p.lead { color: var(--muted); margin: 0 0 20px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 1rem/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .top { display: flex; justify-content: space-between; align-items: center; max-width: 760px; margin: 0 auto; padding: 12px 16px 4px; }
+  h1 { font-size: 1.15rem; margin: 0; }
+  h2 { font-size: 1.2rem; margin: 0 0 8px; }
+  h3 { font-size: 1rem; margin: 0 0 6px; color: var(--muted); }
+  main { max-width: 760px; margin: 0 auto; padding: 4px 16px 56px; display: flex; flex-direction: column; gap: 14px; }
+
   button, .btn, select, input[type=text], input[type=password] {
-    font: inherit; min-height: 64px; padding: 12px 18px; border-radius: 14px;
-    border: 3px solid var(--line); background: var(--card); color: var(--fg);
+    font: inherit; min-height: 64px; padding: 10px 16px; border-radius: 18px;
+    border: 2px solid var(--line); background: var(--card); color: var(--fg);
   }
-  button, .btn { cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; gap: 10px; text-decoration: none; }
-  .primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-  .big { min-height: 34vh; font-size: 1.6rem; width: 100%; }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  :focus-visible { outline: 4px solid #4cc2ff; outline-offset: 3px; }
-  section, details { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 16px; margin-top: 18px; }
-  summary { font-weight: 700; font-size: 1.15rem; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
-  #preview { width: 100%; max-height: 50vh; object-fit: contain; border-radius: 12px; background: #000; display: none; margin-top: 4px; }
-  #cam { width: 100%; max-height: 50vh; object-fit: contain; border-radius: 12px; background: #000; margin-top: 12px; }
-  #status { min-height: 1.6em; font-weight: 700; margin-top: 14px; }
+  button, .btn { cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; gap: 8px; text-decoration: none; }
+  .primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+  .soft { background: var(--soft); color: var(--soft-fg); border-color: var(--soft); }
+  .icon { min-height: 56px; min-width: 56px; padding: 6px 12px; font-size: 1.3rem; }
+  .talk { min-height: 20vh; font-size: 1.45rem; border-radius: 28px; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  :focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 16px; }
+  #stage { background: var(--soft); border-radius: 24px; min-height: 120px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #preview, #cam { width: 100%; max-height: 40vh; object-fit: contain; background: #000; }
+  #placeholder { margin: 0; padding: 24px; text-align: center; color: var(--muted); }
+  #capBox { background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 18px; }
+  .caption { font-size: 1.45rem; line-height: 1.45; font-weight: 600; margin: 0; }
+  #assistState { font-weight: 700; margin: 0; min-height: 1.5em; color: var(--primary); text-align: center; }
+  html[data-theme="escuro"] #assistState { color: var(--primary); }
+  #status { min-height: 1.4em; font-weight: 600; text-align: center; margin: 0; }
   #status.err { color: var(--err); }
   #status.ok { color: var(--ok); }
-  .out { white-space: pre-wrap; margin: 0; }
-  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 12px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .chip { flex-direction: column; gap: 2px; font-size: .85rem; padding: 8px 6px; min-height: 76px; }
+  .chip .e { font-size: 1.4rem; line-height: 1; }
+  .out { white-space: pre-wrap; margin: 0 0 8px; }
+  .sec { margin-bottom: 18px; }
+  .sec:last-child { margin-bottom: 0; }
+  .ask { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+  ul.sources { margin: 8px 0 0; padding-left: 22px; }
+  ul.sources a { color: var(--primary); }
+  html[data-theme="escuro"] ul.sources a { color: #8fd3ff; }
   label { display: block; margin: 12px 0 6px; font-weight: 600; }
   .check { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
   .check input { width: 28px; height: 28px; }
+  .small { font-size: .8rem; color: var(--muted); }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .ask { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
   .hidden { display: none !important; }
-  .small { font-size: .85em; color: var(--muted); }
-  #assistState { font-weight: 700; margin: 0 0 10px; min-height: 1.6em; color: var(--accent); }
-  ul.sources { margin: 8px 0 0; padding-left: 22px; }
-  ul.sources a { color: #8fd3ff; }
+
+  .sheet { position: fixed; inset: 0; background: var(--bg); overflow: auto; z-index: 10; }
+  .sheet .inner { max-width: 760px; margin: 0 auto; padding: 16px 16px 60px; display: flex; flex-direction: column; gap: 14px; }
+  details { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 14px; }
+  summary { font-weight: 700; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+  .sizes { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; text-align: center; }
 </style>
 </head>
 <body>
-<main>
+<header class="top">
   <h1>Descritor de Imagens</h1>
-  <p class="lead">Tire uma foto ou escolha uma imagem da galeria. O app descreve o que há na imagem, lê em voz alta os textos e números, e responde sobre o item, inclusive preços.</p>
+  <button type="button" id="btnSettings" class="soft icon" aria-label="Configurações">⚙️</button>
+</header>
 
-  <section id="startBox" aria-labelledby="hStart">
-    <h2 id="hStart" class="sr-only">Assistente de voz</h2>
-    <button type="button" class="primary big" id="btnStart">🎙️ Toque aqui para ativar o assistente de voz</button>
-    <button type="button" id="btnNoVoice" style="margin-top:12px;width:100%">Continuar sem o assistente de voz</button>
-    <p class="small" style="margin-bottom:0">Se você usa um leitor de tela (TalkBack, VoiceOver), prefira continuar sem o assistente.</p>
+<main>
+  <section id="stage" aria-label="Imagem">
+    <video id="cam" class="hidden" playsinline muted aria-hidden="true"></video>
+    <img id="preview" class="hidden" alt="Imagem escolhida">
+    <p id="placeholder">Toque em <b>Foto</b> ou diga <b>“foto”</b> para começar.</p>
   </section>
 
-  <section id="assistBar" class="hidden" aria-label="Assistente de voz ativo">
-    <p id="assistState" role="status"></p>
-    <div class="row">
-      <button type="button" class="primary" id="btnTalk">🎤 Falar com o assistente</button>
-      <button type="button" id="btnAssistOff">🔇 Desligar o assistente</button>
-    </div>
+  <section id="capBox" aria-live="polite" aria-label="Resposta">
+    <p id="capText" class="caption">Toque no botão grande para ativar o assistente de voz.</p>
   </section>
+  <p id="assistState" role="status"></p>
+  <p id="status" role="status" aria-live="polite"></p>
 
-  <details id="keyBox">
-    <summary>🔑 Chave de acesso da IA (Gemini, grátis)</summary>
-    <p class="small">Cole aqui a sua chave gratuita do Google Gemini (aistudio.google.com) e toque em Salvar. Ela fica guardada apenas neste navegador, neste aparelho, e é enviada somente para o Google. Você só precisa fazer isso uma vez em cada aparelho.</p>
-    <label for="apikey">Sua chave</label>
-    <input type="password" id="apikey" autocomplete="off" style="width:100%" placeholder="Cole sua chave aqui">
-    <div class="check">
-      <input type="checkbox" id="showKey">
-      <label for="showKey" style="margin:0">Mostrar a chave que colei</label>
-    </div>
-    <div class="row" style="margin-top:10px">
-      <button type="button" class="primary" id="btnSaveKey">💾 Salvar chave neste navegador</button>
-      <button type="button" id="btnClearKey">🗑️ Remover chave salva</button>
-    </div>
-    <p id="keyStatus" role="status" aria-live="polite" style="font-weight:700;margin:10px 0 0"></p>
-  </details>
+  <button type="button" class="primary talk" id="btnTalk">🎙️ Ativar assistente de voz</button>
 
-  <div class="row" role="group" aria-label="Escolher imagem" style="margin-top:18px">
-    <button type="button" class="primary" id="btnCamera">📷 Tirar foto</button>
-    <button type="button" id="btnGallery">🖼️ Escolher da galeria</button>
+  <div class="row2" role="group" aria-label="Escolher imagem">
+    <button type="button" class="soft" id="btnCamera">📷 Foto</button>
+    <button type="button" class="soft" id="btnGallery">🖼️ Galeria</button>
   </div>
   <input type="file" id="inCamera" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true">
   <input type="file" id="inGallery" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true">
+  <input type="file" id="inExtra" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true">
 
-  <video id="cam" class="hidden" playsinline muted aria-hidden="true"></video>
-  <div id="status" role="status" aria-live="polite"></div>
-  <img id="preview" alt="Imagem escolhida">
+  <div id="chips" class="row3 hidden" role="group" aria-label="Perguntas rápidas">
+    <button type="button" class="chip" id="btnPrice"><span class="e">💲</span>Preço</button>
+    <button type="button" class="chip" id="btnCond"><span class="e">✅</span>Condição</button>
+    <button type="button" class="chip" id="btnDetails" aria-expanded="false" aria-controls="more"><span class="e">📋</span>Detalhes</button>
+  </div>
 
-  <section id="result" class="hidden" aria-labelledby="hResult" tabindex="-1">
-    <h2 id="hResult">Resultado</h2>
+  <div class="row2" role="group" aria-label="Controle da voz">
+    <button type="button" id="btnRepeat">🔁 Repetir</button>
+    <button type="button" id="btnStop">⏹ Parar</button>
+  </div>
 
-    <h3 id="hDesc">Descrição</h3>
-    <p class="out" id="outDesc" aria-labelledby="hDesc"></p>
-
-    <h3 id="hTxt">Textos e números</h3>
-    <p class="out" id="outTxt" aria-labelledby="hTxt"></p>
-
-    <div class="controls" role="group" aria-label="Controles de leitura em voz alta">
-      <button type="button" class="primary" id="btnAll">▶ Ler tudo</button>
-      <button type="button" id="btnTxt">🔢 Ler só textos e números</button>
-      <button type="button" id="btnDesc">👁️ Ler só a descrição</button>
-      <button type="button" id="btnPause">⏸ Pausar</button>
-      <button type="button" id="btnStop">⏹ Parar</button>
+  <section id="more" class="card hidden" aria-label="Detalhes">
+    <div id="secDesc" class="sec hidden">
+      <h3>Descrição completa</h3>
+      <p class="out" id="outDesc"></p>
+      <button type="button" class="soft" id="btnReadDesc">▶ Ler descrição</button>
+    </div>
+    <div id="secTxt" class="sec hidden">
+      <h3>Textos e números</h3>
+      <p class="out" id="outTxt"></p>
+      <button type="button" class="soft" id="btnReadTxt">▶ Ler textos e números</button>
+    </div>
+    <div id="secItem" class="sec hidden">
+      <h3>Sobre o item</h3>
+      <p class="out" id="outItem"></p>
+      <ul class="sources" id="outSources" aria-label="Fontes da pesquisa"></ul>
+      <a class="btn soft" id="lnkSearch" href="#" target="_blank" rel="noopener noreferrer" style="margin-top:10px">🔎 Abrir pesquisa no Google</a>
+      <p class="small">O app só informa. Não faz compras nem abre páginas de pagamento.</p>
+    </div>
+    <div id="secCond" class="sec hidden">
+      <h3>Condição</h3>
+      <p class="out" id="outCond"></p>
+      <button type="button" class="soft" id="btnExtra">📷 Outro ângulo</button>
+    </div>
+    <div id="secAsk" class="sec hidden">
+      <h3>Perguntar sobre a imagem</h3>
+      <div class="ask">
+        <input type="text" id="question" placeholder="Ex.: Qual é a validade?" aria-label="Sua pergunta sobre a imagem">
+        <button type="button" id="btnMic" aria-label="Perguntar por voz">🎤</button>
+      </div>
+      <button type="button" class="primary" id="btnAsk" style="margin-top:10px;width:100%">Enviar pergunta</button>
+      <p class="out" id="outAnswer" aria-live="polite" style="margin-top:12px"></p>
     </div>
   </section>
-
-  <section id="itemBox" class="hidden" aria-labelledby="hItem">
-    <h2 id="hItem">Sobre o item</h2>
-    <p class="out" id="outItem" aria-live="polite"></p>
-    <ul class="sources" id="outSources" aria-label="Fontes da pesquisa"></ul>
-    <div class="controls">
-      <a class="btn primary" id="lnkSearch" href="#" target="_blank" rel="noopener noreferrer">🔎 Abrir pesquisa no Google</a>
-      <button type="button" id="btnReadItem">▶ Ler de novo</button>
-    </div>
-    <p class="small">O app apenas informa. Ele não faz compras nem abre páginas de pagamento. Preços mudam e podem variar por versão e loja: confirme na loja.</p>
-  </section>
-
-  <section id="askBox" class="hidden" aria-labelledby="hAsk">
-    <h2 id="hAsk">Perguntar sobre a imagem</h2>
-    <div class="ask">
-      <input type="text" id="question" placeholder="Ex.: Qual é a data de validade?" aria-label="Sua pergunta sobre a imagem">
-      <button type="button" id="btnMic" aria-label="Perguntar por voz">🎤 Falar</button>
-    </div>
-    <button type="button" class="primary" id="btnAsk" style="margin-top:10px;width:100%">Enviar pergunta</button>
-    <p class="out" id="outAnswer" aria-live="polite" style="margin-top:12px"></p>
-  </section>
-
-  <section aria-labelledby="hSet">
-    <h2 id="hSet">Configurações de voz</h2>
-    <label for="voice">Voz</label>
-    <select id="voice" style="width:100%"></select>
-    <label for="rate">Velocidade da fala: <span id="rateVal">1,0x</span></label>
-    <input type="range" id="rate" min="0.6" max="2" step="0.1" value="1" style="width:100%;height:40px">
-    <div class="check">
-      <input type="checkbox" id="auto" checked>
-      <label for="auto" style="margin:0">Ler o resultado em voz alta automaticamente (sem o assistente)</label>
-    </div>
-    <p class="small" style="margin-top:10px">Se você já usa um leitor de tela (TalkBack, VoiceOver, NVDA), desmarque a opção acima e não ative o assistente, para evitar vozes duplicadas.</p>
-  </section>
-
-  <p class="small" style="margin-top:24px">A IA pode errar. Em remédios, dinheiro, documentos e contas, confirme com outra pessoa antes de decidir. Sobre a condição de alimentos e objetos, a IA só vê o aspecto: confirme também com o toque e o cheiro. Este app usa o plano gratuito do Google Gemini: o Google pode usar as imagens enviadas para melhorar seus produtos. Evite enviar documentos pessoais ou sigilosos.</p>
 </main>
+
+<div id="settings" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="hSet">
+  <div class="inner">
+    <h2 id="hSet">Configurações</h2>
+    <button type="button" class="primary" id="btnCloseSettings">✔ Voltar</button>
+
+    <details id="keyBox">
+      <summary>🔑 Chave de acesso da IA (Gemini)</summary>
+      <p class="small">Cole a sua chave gratuita do Google Gemini (aistudio.google.com) e toque em Salvar. Ela fica guardada apenas neste navegador e é enviada somente ao Google. Só precisa ser feito uma vez por aparelho.</p>
+      <label for="apikey">Sua chave</label>
+      <input type="password" id="apikey" autocomplete="off" style="width:100%" placeholder="Cole sua chave aqui">
+      <div class="check">
+        <input type="checkbox" id="showKey">
+        <label for="showKey" style="margin:0">Mostrar a chave que colei</label>
+      </div>
+      <div class="row2" style="margin-top:10px">
+        <button type="button" class="primary" id="btnSaveKey">💾 Salvar chave</button>
+        <button type="button" id="btnClearKey">🗑️ Remover</button>
+      </div>
+      <p id="keyStatus" role="status" aria-live="polite" style="font-weight:700;margin:10px 0 0"></p>
+    </details>
+
+    <div class="card">
+      <h3>Tamanho da letra</h3>
+      <div class="sizes">
+        <button type="button" id="btnSizeDown" aria-label="Diminuir a letra">A−</button>
+        <span id="sizeVal">Médio</span>
+        <button type="button" id="btnSizeUp" aria-label="Aumentar a letra">A+</button>
+      </div>
+      <label for="themeSel">Tema</label>
+      <select id="themeSel" style="width:100%">
+        <option value="claro">Claro (verde-água e branco)</option>
+        <option value="escuro">Escuro (verde profundo)</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h3>Voz</h3>
+      <label for="voice">Voz</label>
+      <select id="voice" style="width:100%"></select>
+      <label for="rate">Velocidade da fala: <span id="rateVal">1,0x</span></label>
+      <input type="range" id="rate" min="0.6" max="2" step="0.1" value="1" style="width:100%;height:40px">
+      <div class="check">
+        <input type="checkbox" id="auto" checked>
+        <label for="auto" style="margin:0">Ler em voz alta quando o assistente estiver desligado</label>
+      </div>
+      <button type="button" id="btnAssistOff" style="width:100%;margin-top:14px">🔇 Desligar o assistente de voz</button>
+      <p class="small" style="margin-top:10px">Se você usa um leitor de tela (TalkBack, VoiceOver, NVDA), desligue o assistente e desmarque a leitura em voz alta, para evitar vozes duplicadas.</p>
+    </div>
+
+    <p class="small">A IA pode errar. Em remédios, dinheiro, documentos e contas, confirme com outra pessoa antes de decidir. Sobre a condição de alimentos e objetos, a IA só vê o aspecto: confirme também com o toque e o cheiro. Preços são aproximados e mudam. O app apenas informa e nunca faz compras. Este app usa o plano gratuito do Google Gemini: o Google pode usar as imagens enviadas para melhorar seus produtos. Evite enviar documentos pessoais ou sigilosos.</p>
+  </div>
+</div>
 
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-  const statusEl = $('status');
   const CANCEL = Symbol('cancel');
   const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
 
-  let current = null;       // { dataUrl, base64, mediaType }
-  let analysis = null;      // resultado da análise inicial
-  let itemName = '';        // item identificado (ou informado pelo usuário)
-  let itemConfirmed = false;
-  let lastTerm = '';        // termo para a pesquisa no Google
-  let lastItemSpoken = '';
+  // ---------- Estado ----------
+  let current = null;        // imagem principal { dataUrl, base64, mediaType }
+  let analysis = null;       // resultado da análise inicial
+  let itemName = '';
+  let lastTerm = '';
+  let lastSpoken = '';
   let assistantOn = false;
-  let flowId = 0;           // cancela fluxos antigos quando o usuário interage
+  let flowId = 0;
   let recCur = null;
   let micDenied = false;
   let actx = null;
+  let pending = null;        // 'detalhes' | 'proxima_foto' | 'sensorial' | null
+  let ctx = '';              // 'preco' | 'cond' | ''
+  let refine = { estado: '', ordem: '', loja: '' };
+  let condPhotos = [];
+  let condNotes = [];
+  let itemHinted = false;
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const canListen = !!SR;
   const synth = window.speechSynthesis;
-
-  // Modelos tentados em ordem (se um não estiver disponível ou estourar o limite, tenta o próximo)
   const MODELS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest'];
 
-  const SYSTEM_ANALISE = `Você é um assistente de acessibilidade que descreve imagens para pessoas cegas ou com baixa visão, em português do Brasil. Seu texto será lido em voz alta, então escreva frases curtas e naturais, sem markdown, sem listas com símbolos e sem emojis.
+  // ---------- Prompts ----------
+  const SYSTEM_ANALISE = `Você é um assistente de acessibilidade que descreve imagens para pessoas cegas ou com baixa visão, em português do Brasil. Seu texto será lido em voz alta: frases curtas e naturais, sem markdown, sem emojis, sem símbolos de lista.
 
 Responda SOMENTE com um objeto JSON válido, com exatamente estas chaves:
-"descricao": comece com uma visão geral em uma frase (o que é a imagem e onde parece estar). Depois descreva, do mais importante ao menos importante: pessoas (quantidade, posição, expressões, roupas, sem inferir identidade), objetos, cores, ambiente, e posição dos elementos (esquerda, direita, centro, ao fundo). Seja concreto e objetivo. Se houver perigo visível (degrau, fogo, objeto cortante, trânsito), diga logo no início.
-"textos": transcreva literalmente TODO texto e TODOS os números legíveis na imagem (placas, rótulos, telas, documentos, preços, datas, validade, doses), na ordem de leitura. Para cada número, leia por extenso quando ajudar (ex.: "R$ 12,50, doze reais e cinquenta centavos"). Se um trecho estiver ilegível ou parcial, diga isso claramente em vez de adivinhar. Se não houver nenhum texto ou número, escreva exatamente: Não há texto nem números visíveis.
+"resumo": uma a duas frases curtas: o que é o item principal e o essencial (cor, estado geral visível). Se houver perigo visível (degrau, fogo, objeto cortante, trânsito), comece por ele.
+"descricao": descrição completa. Comece com uma visão geral em uma frase. Depois, do mais importante ao menos importante: pessoas (quantidade, posição, expressões, roupas, sem inferir identidade), objetos, cores, ambiente e posição dos elementos (esquerda, direita, centro, ao fundo). Seja concreto e objetivo.
+"textos": transcreva literalmente TODO texto e TODOS os números legíveis (placas, rótulos, telas, documentos, preços, datas, validade, doses), na ordem de leitura. Para números, leia por extenso quando ajudar (ex.: "R$ 12,50, doze reais e cinquenta centavos"). Se um trecho estiver ilegível ou parcial, diga isso em vez de adivinhar. Se não houver texto, escreva exatamente: Não há texto nem números visíveis.
+"tem_texto": true se houver algum texto ou número legível; senão false.
 "tipo_imagem": uma destas palavras: produto, alimento, documento, remedio, pessoa, ambiente, outro.
-"item_identificado": nome curto do item principal da imagem (por exemplo "fone de ouvido bluetooth preto"). Inclua marca e modelo SOMENTE se estiverem legíveis na imagem. Use string vazia se não houver um item principal claro.
+"item_identificado": nome curto do item principal (ex.: "fone de ouvido bluetooth preto"). Inclua marca e modelo SOMENTE se estiverem legíveis na imagem. String vazia se não houver um item principal claro.
 "confianca": "alta" somente se marca ou modelo estiverem legíveis ou o item for inequívoco; caso contrário "media" ou "baixa".
 
-Regras: nunca invente conteúdo; se algo estiver incerto, diga "parece" ou "não dá para ter certeza". Não identifique pessoas pelo rosto. Em imagens de remédios, dinheiro, documentos ou contas, transcreva com máximo cuidado e avise que vale confirmar com outra pessoa antes de decisões importantes.`;
+Regras: nunca invente conteúdo; se algo estiver incerto, diga "parece" ou "não dá para ter certeza". Não identifique pessoas pelo rosto. Em remédios, dinheiro, documentos ou contas, transcreva com máximo cuidado e avise que vale confirmar com outra pessoa antes de decisões importantes.`;
 
   const SYSTEM_PERGUNTA = `Você é um assistente de acessibilidade que responde perguntas sobre uma imagem para pessoas cegas ou com baixa visão, em português do Brasil. A resposta será lida em voz alta: frases curtas, sem markdown, sem emojis.
 Responda SOMENTE com um objeto JSON: {"resposta": "..."}. Seja direto e curto. Nunca invente: se não der para saber pela imagem, diga isso.
-Se a pergunta for sobre a condição de um item (frescor, estrago, avarias, manchas), descreva apenas o que é visível: manchas, mofo, amassados, rachaduras, murcha, embalagem estufada ou rasgada. Nunca afirme que algo é seguro para comer ou usar. Diga o que a imagem não mostra (cheiro, firmeza, estado interno) e peça que a pessoa confira com o toque e o cheiro. Na dúvida, recomende cautela.`;
+Se a pergunta for sobre a condição de um item, descreva apenas o que é visível e nunca afirme que algo é seguro para comer ou usar; peça que a pessoa confira com o toque e o cheiro.`;
 
   const SYSTEM_ITEM = `Você é um assistente de voz para pessoas cegas, em português do Brasil. Responda para ser lido em voz alta: frases curtas, sem markdown, sem emojis, sem símbolos de lista. Use a pesquisa do Google para obter informações atuais. Você apenas informa: nunca incentive nem execute compras, e não recomende uma loja ou produto como "melhor compra". Nunca invente preços: se não achar, escreva "não encontrei". Informe valores de referência no Brasil, em reais, e deixe claro que variam por versão e loja.
 
 Responda neste formato, omitindo as tags que não se aplicarem:
-<resumo>resposta direta ao pedido, em até 5 frases</resumo>
-<faixa>faixa de preço em reais, por exemplo "de 120 a 180 reais"</faixa>
+<resumo>para pedidos de preço: no máximo uma frase sobre a segurança dos valores (por exemplo, se encontrou poucos preços); para os demais pedidos: resposta direta em até 4 frases</resumo>
+<faixa>faixa de preço em reais reunindo as lojas grandes e conhecidas que você encontrou, por exemplo "de 120 a 180 reais"</faixa>
 <amazon>um preço de referência na Amazon Brasil, citando o modelo encontrado, ou "não encontrei"</amazon>
 <mercadolivre>um preço de referência no Mercado Livre, citando o modelo encontrado, ou "não encontrei"</mercadolivre>
-<termo>termo curto de busca para o Google</termo>
+<termo>termo curto de busca para o Google, já incluindo as restrições pedidas</termo>
 
 Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou onde encontrar o item.`;
 
+  const SYSTEM_COND = `Você avalia a condição visível de itens por foto, para pessoas cegas ou com baixa visão, em português do Brasil. Seja conservador: na dúvida, prefira o veredito mais cauteloso. Você NUNCA afirma que algo é seguro para comer ou usar.
+
+Responda SOMENTE com um objeto JSON com estas chaves:
+"categoria": fruta_verdura, alimento_embalado, objeto, roupa, eletronico, carne_laticinio, remedio ou outro. Use carne_laticinio para carnes, peixes, laticínios e ovos; remedio para medicamentos.
+"veredito": "boa" (nada de errado visível), "atencao" (sinais leves), "evitar" (sinais claros de problema) ou "nao_consegui" (foto insuficiente).
+"confianca": "alta", "media" ou "baixa".
+"achados": lista de até 4 frases curtas com o que se VÊ (manchas, mofo, murcha, machucados, amassados, rachaduras, peças soltas, ferrugem, rasgos, embalagem estufada ou vazando). Lista vazia se nada for visível.
+"nao_visivel": lista de até 3 itens que a foto não mostra (cheiro, firmeza, estado interno, funcionamento).
+"pedir_nova_foto": true se a foto estiver escura, tremida, cortada ou não mostrar todos os lados.
+"orientacao": uma frase curta dizendo como melhorar a foto (ex.: "Está escuro, aproxime de uma luz."), ou string vazia.
+
+Se houver relato da pessoa sobre toque e cheiro, use-o: mole, viscoso, cheiro azedo ou fermentado levam a "evitar"; firme e cheiro normal diminuem a preocupação, mas nunca eliminam os sinais visuais.`;
+
   const FOCOS = {
     preco: 'O usuário quer saber quanto custa.',
-    oque: 'Explique o que é o item, para que serve e como se usa.',
+    info: 'Explique o que é o item, para que serve e como se usa.',
     onde: 'Diga em que tipos de loja e em quais lojas conhecidas o item costuma ser encontrado, sem recomendar uma delas.',
     alt: 'Cite duas ou três alternativas parecidas e como se diferenciam.',
     curio: 'Conte duas ou três curiosidades interessantes sobre o item.',
-    livre: '',
   };
 
-  const HELP = 'Você pode dizer: foto, para tirar uma foto com a câmera. Galeria, para escolher uma imagem, o que exige um toque no botão da tela. Repetir, só textos, ou só descrição. Mais devagar, ou mais rápido. Depois de analisar uma imagem, diga: quanto custa, o que é isso, onde encontro, tem parecido, curiosidades, ou abrir pesquisa. Você também pode fazer qualquer pergunta sobre a imagem. Para pausar o assistente, diga: sair.';
+  const HELP = 'Você pode dizer: foto, para tirar uma foto. O que é isso, para uma descrição curta. Mais detalhes, para a descrição completa. Ler textos, para ouvir textos e números. Qual o preço, para uma faixa de preço. Está em boas condições, para avaliar o estado do item. Próxima foto, para mostrar outro ângulo. Quero saber mais, para informações do item. Abrir pesquisa, para abrir o Google. Repetir, mais devagar, mais rápido, letra maior, ou tema escuro. Para pausar o assistente, diga sair.';
 
   // ---------- Utilidades ----------
-  function setStatus(msg, kind = '') { statusEl.textContent = msg; statusEl.className = kind; }
-  function setAssist(msg) { $('assistState').textContent = msg || ''; }
-  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   const tag = (text, name) => {
     const m = String(text || '').match(new RegExp('<' + name + '>([\\s\\S]*?)</' + name + '>', 'i'));
     return m ? m[1].trim() : '';
   };
   const sentence = (s) => String(s).replace(/[.\s]+$/, '') + '.';
+  const asText = (v) => Array.isArray(v) ? v.join('. ') : (v == null ? '' : String(v));
+  const asList = (v) => Array.isArray(v) ? v.map(String).filter(Boolean) : (v ? [String(v)] : []);
   function parseJson(t) {
     if (!t) return null;
     const s = String(t).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
@@ -230,14 +305,132 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     if (m) { try { return JSON.parse(m[0]); } catch {} }
     return null;
   }
-  const asText = (v) => Array.isArray(v) ? v.join('. ') : (v == null ? '' : String(v));
+  function firstSentences(t, n) {
+    const m = String(t || '').replace(/\s+/g, ' ').match(/[^.!?]+[.!?]*/g) || [];
+    return m.slice(0, n).join(' ').trim();
+  }
 
-  // ---------- Chave da API (guardada só neste aparelho) ----------
+  // <classify>
+  // Interpreta a fala do usuário (já normalizada) e devolve a intenção.
+  function classify(n, st) {
+    st = st || {};
+    if (/\bajuda\b|\bcomandos\b|o que voce (faz|pode)/.test(n)) return 'ajuda';
+    if (/\b(sair|encerrar|desligar|tchau|ate logo)\b/.test(n)) return 'sair';
+    if (st.hasAnalysis && /^(nao|na verdade)\s+(e|eh|seria|era)\s+\S/.test(n)) return 'correcao';
+    if (st.pending === 'sensorial' && !/\b(foto|galeria|repet|preco|pesquisa)\b/.test(n)) return 'sensorial';
+    const short = n.split(' ').length <= 3;
+    if (st.pending && short && /^(sim|pode|claro|quero|ok|certo|positivo|vamos|manda|isso mesmo)\b/.test(n)) return 'yes';
+    if (st.pending && short && /^(nao|negativo|agora nao|deixa|cancelar)\b/.test(n)) return 'no';
+    if (/^(ta bom|ta certo|beleza|ok|certo|entendi|valeu|show|tudo bem)$/.test(n) || /^obrigad[oa]/.test(n)) return 'ack';
+    if (/galeria|arquivo/.test(n)) return 'galeria';
+    if (/proxima foto|outro (lado|angulo)|mais uma foto/.test(n)) return 'proxima_foto';
+    if (/\b(foto|fotografar|camera|tirar)\b/.test(n)) return 'foto';
+    if (/mais devagar|mais lento|\bdevagar\b/.test(n)) return 'devagar';
+    if (/mais rapido|mais depressa|acelera|\brapido\b/.test(n)) return 'rapido';
+    if (/letra maior|aumentar (a )?letra|texto maior|letra grande/.test(n)) return 'letra_mais';
+    if (/letra menor|diminuir (a )?letra|texto menor/.test(n)) return 'letra_menos';
+    if (/(tema|modo) escuro/.test(n)) return 'tema_escuro';
+    if (/(tema|modo) claro/.test(n)) return 'tema_claro';
+    if (/repet|de novo|ouvir novamente|ler novamente/.test(n)) return 'repetir';
+    if (/ler (os )?(texto|textos|numeros)|tem texto|esta escrito|que esta escrito|(so|apenas) (os )?(texto|textos|numeros)/.test(n)) return 'textos';
+    if (/detalhes|descricao completa|\bcontinue\b|\bcontinua\b|descreva melhor/.test(n)) return 'detalhes';
+    if (/\b(abrir|abre|abra)\b.*(pesquisa|busca|google)/.test(n)) return 'abrir';
+    if (/mais barat|menor preco/.test(n)) return 'r_barato';
+    if (/\b(so|apenas|somente) (novo|novos)\b/.test(n) || (st.ctx === 'preco' && /^(novo|novos)$/.test(n))) return 'r_novo';
+    if (/\b(so|apenas|somente) (usado|usados)\b/.test(n) || (st.ctx === 'preco' && /^(usado|usados)$/.test(n))) return 'r_usado';
+    if (/outra loja|outras lojas|loja especifica/.test(n)) return 'r_loja';
+    if (/outro modelo|modelo diferente/.test(n)) return 'r_modelo';
+    if (/\b(esta|estao) (bom|boa|bons|boas|bem|estragad|podre|quebrad|danificad|machucad|mofad|velh|rachad|passad|maduro|madura)|condic|estrag|podre|quebrad|danific|avaria|machucad|mofo|mofad|rachad|\bpassad[oa]\b|ainda serve|ainda presta|\bpresta\b|vale a pena comer/.test(n)) return 'cond';
+    if (/quanto (custa|sai|vale|e)\b|preco|valor|\be caro\b|\bcaro\b|\bbarato\b/.test(n)) return 'preco';
+    if (/onde (encontro|compro|acho|vende|vendem|posso comprar)|onde comprar/.test(n)) return 'onde';
+    if (/parecid|alternativ|similar|outras? opcoes/.test(n)) return 'alt';
+    if (/curiosidade|conte algo|me conte/.test(n)) return 'curio';
+    if (/saber mais|me fala mais|mais sobre (ele|ela|isso|o item)|para que serve|como (usa|se usa)/.test(n)) return 'info';
+    if (/\bo que e (isso|esse|essa|este|esta|aquilo)\b|o que (tem|ha) ai|o que estou vendo|\bdescreva\b|\bdescreve\b|me diz o que e|que item e|que produto e/.test(n)) return 'oque';
+    return 'livre';
+  }
+  // </classify>
+
+  // ---------- Aparência: tema e tamanho da letra ----------
+  const SIZES = [19, 22, 26];
+  const SIZE_NAMES = ['Pequeno', 'Médio', 'Grande'];
+  function applySize() {
+    const i = Math.min(2, Math.max(0, Number(lsGet('size', '1')) || 0));
+    document.documentElement.style.setProperty('--fs', SIZES[i] + 'px');
+    $('sizeVal').textContent = SIZE_NAMES[i];
+    return i;
+  }
+  function setSize(delta) {
+    const i = Math.min(2, Math.max(0, (Number(lsGet('size', '1')) || 0) + delta));
+    lsSet('size', String(i));
+    return applySize() === i ? SIZE_NAMES[i] : SIZE_NAMES[i];
+  }
+  function applyTheme() {
+    const t = lsGet('theme', 'claro') === 'escuro' ? 'escuro' : 'claro';
+    document.documentElement.dataset.theme = t;
+    $('themeSel').value = t;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', t === 'escuro' ? '#0C2225' : '#0A5F5F');
+  }
+  function setTheme(t) { lsSet('theme', t); applyTheme(); }
+  $('btnSizeUp').addEventListener('click', () => setSize(1));
+  $('btnSizeDown').addEventListener('click', () => setSize(-1));
+  $('themeSel').addEventListener('change', (e) => setTheme(e.target.value));
+  applySize(); applyTheme();
+
+  // ---------- Interface ----------
+  function setStatus(msg, kind = '') { const s = $('status'); s.textContent = msg; s.className = kind; }
+  function setAssist(msg) { $('assistState').textContent = msg || ''; }
+  function showCaption(t) { $('capText').textContent = t; }
+  function setSec(secId, outId, text) {
+    const has = !!(text && String(text).trim());
+    $(outId).textContent = has ? text : '';
+    $(secId).classList.toggle('hidden', !has);
+    return has;
+  }
+  function updateStage() {
+    $('cam').classList.add('hidden');
+    const has = !!current;
+    $('preview').classList.toggle('hidden', !has);
+    $('placeholder').classList.toggle('hidden', has);
+  }
+  function setTalkLabel() { $('btnTalk').textContent = assistantOn ? '🎤 Falar' : '🎙️ Ativar assistente de voz'; }
+  function resetResult() {
+    analysis = null; itemName = ''; lastTerm = ''; pending = null; ctx = '';
+    refine = { estado: '', ordem: '', loja: '' };
+    condPhotos = []; condNotes = []; itemHinted = false;
+    ['secDesc', 'secTxt', 'secItem', 'secCond', 'secAsk'].forEach((s) => $(s).classList.add('hidden'));
+    $('outAnswer').textContent = '';
+    $('chips').classList.add('hidden');
+    $('outSources').innerHTML = '';
+  }
+  function showMore(open) {
+    $('more').classList.toggle('hidden', !open);
+    $('btnDetails').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  $('btnDetails').addEventListener('click', () => showMore($('more').classList.contains('hidden')));
+
+  // ---------- Configurações ----------
+  function openSettings() {
+    cancelAll();
+    $('settings').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    $('btnCloseSettings').focus();
+  }
+  function closeSettings() {
+    $('settings').classList.add('hidden');
+    document.body.style.overflow = '';
+    $('btnSettings').focus();
+  }
+  $('btnSettings').addEventListener('click', openSettings);
+  $('btnCloseSettings').addEventListener('click', closeSettings);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('settings').classList.contains('hidden')) closeSettings(); });
+
   const getKey = () => lsGet('apikey', '');
   function refreshKeyUI() {
     const has = !!getKey();
     $('keyBox').open = !has;
-    $('keyStatus').textContent = has ? 'Chave salva neste navegador. Você não precisa colar de novo neste aparelho.' : 'Nenhuma chave salva ainda.';
+    $('keyStatus').textContent = has ? 'Chave salva neste navegador.' : 'Nenhuma chave salva ainda.';
   }
   $('btnSaveKey').addEventListener('click', () => {
     const k = $('apikey').value.trim();
@@ -245,8 +438,8 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     try { localStorage.setItem('apikey', k); } catch { $('keyStatus').textContent = 'Não foi possível salvar neste navegador.'; return; }
     $('apikey').value = '';
     refreshKeyUI();
-    $('keyBox').open = false;
-    setStatus('Chave salva. Agora escolha uma imagem.', 'ok');
+    closeSettings();
+    showCaption('Chave salva. Toque em Foto ou ative o assistente de voz.');
   });
   $('btnClearKey').addEventListener('click', () => {
     try { localStorage.removeItem('apikey'); } catch {}
@@ -272,7 +465,6 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     if (saved) sel.value = saved;
   }
   if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
-
   $('voice').addEventListener('change', (e) => lsSet('voice', e.target.value));
   $('rate').value = lsGet('rate', '1');
   const showRate = () => { $('rateVal').textContent = Number($('rate').value).toFixed(1).replace('.', ',') + 'x'; };
@@ -281,7 +473,8 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
   $('auto').checked = lsGet('auto', '1') !== '0';
   $('auto').addEventListener('change', () => lsSet('auto', $('auto').checked ? '1' : '0'));
 
-  // Divide em frases para evitar o corte de falas longas em alguns navegadores
+  const speakEnabled = () => assistantOn || $('auto').checked;
+
   function chunk(text) {
     const parts = String(text).replace(/\s+/g, ' ').match(/[^.!?;\n]+[.!?;]*/g) || [];
     const out = [];
@@ -292,8 +485,6 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     if (buf.trim()) out.push(buf.trim());
     return out;
   }
-
-  // Fala e devolve uma Promise que termina quando a fala acaba (ou é cancelada)
   function speakP(text) {
     return new Promise((resolve) => {
       if (!synth) { resolve(); return; }
@@ -306,7 +497,6 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       let done = false;
       let timer = null;
       const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
-      // Plano B: alguns navegadores não disparam o evento de fim da fala
       timer = setTimeout(finish, Math.max(4000, (String(text).length * 130) / rate + 3000));
       parts.forEach((part) => {
         const u = new SpeechSynthesisUtterance(part);
@@ -318,24 +508,29 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       });
     });
   }
-  function stop() { if (synth) { synth.resume(); synth.cancel(); } $('btnPause').textContent = '⏸ Pausar'; }
+  function stopSpeech() { if (synth) { synth.resume(); synth.cancel(); } }
 
-  // ---------- Controle de fluxos (cancelamento quando o usuário toca em algo) ----------
+  // ---------- Controle de fluxos ----------
   function chk(id) { if (id !== flowId) throw CANCEL; }
   function cancelAll() {
     flowId += 1;
     try { if (recCur) recCur.abort(); } catch {}
     recCur = null;
-    stop();
+    stopSpeech();
     setAssist('');
   }
   async function say(text, id) {
     chk(id);
-    if (!text) return;
+    if (!text || !speakEnabled()) return;
     setAssist('Falando…');
     await speakP(text);
     chk(id);
     setAssist('');
+  }
+  async function announce(text, id) {
+    lastSpoken = text;
+    showCaption(text);
+    await say(text, id);
   }
   async function runFlow(fn) {
     cancelAll();
@@ -344,8 +539,7 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     catch (e) { if (e !== CANCEL) setStatus((e && e.message) || 'Algo deu errado. Tente novamente.', 'err'); }
     finally { if (id === flowId) setAssist(''); }
   }
-  // Fala imediata disparada pelos botões (interrompe o assistente)
-  function speakNow(text) { cancelAll(); speakP(text); }
+  function speakNow(text) { cancelAll(); if (text) speakP(text); }
 
   // ---------- Voz: escuta ----------
   function beep() {
@@ -388,33 +582,23 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     return t;
   }
 
-  async function askYesNo(prompt, id) {
-    for (let i = 0; i < 2; i++) {
-      await say(i ? 'Diga sim ou não.' : prompt, id);
-      const t = await listen(id);
-      if (!t) continue;
-      const n = norm(t);
-      if (/\b(nao|negativo|cancelar|deixa|agora nao)\b/.test(n)) return 'nao';
-      if (/\b(sim|pode|claro|quero|abre|abrir|isso|ok|certo|positivo)\b/.test(n)) return 'sim';
-    }
-    return null;
-  }
-
-  // ---------- Câmera dentro do app (para tirar foto por comando de voz) ----------
+  // ---------- Câmera dentro do app ----------
   async function captureCamera(id) {
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     } catch {
-      await say('Não consegui abrir a câmera por aqui. Toque no botão Tirar foto, na tela.', id);
+      await say('Não consegui abrir a câmera por aqui. Toque no botão Foto, na tela.', id);
       return null;
     }
     const v = $('cam');
     try {
       v.srcObject = stream;
       v.classList.remove('hidden');
+      $('preview').classList.add('hidden');
+      $('placeholder').classList.add('hidden');
       await v.play().catch(() => {});
-      await say('Aponte a câmera para o item, com boa luz. Vou tirar a foto depois da contagem.', id);
+      await say('Aponte a câmera para o item, com boa luz. Vou fotografar depois da contagem.', id);
       await new Promise((r) => setTimeout(r, 900));
       chk(id);
       await say('Três. Dois. Um.', id);
@@ -427,7 +611,7 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     } finally {
       stream.getTracks().forEach((t) => t.stop());
       v.srcObject = null;
-      v.classList.add('hidden');
+      updateStage();
     }
   }
 
@@ -456,8 +640,7 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
   async function callModel({ system, parts, json = false, grounded = false, maxTokens = 4096 }) {
     const key = getKey();
     if (!key) {
-      $('keyBox').open = true;
-      throw new Error('Cadastre sua chave de acesso primeiro, no campo de chave.');
+      throw new Error('Cadastre sua chave de acesso primeiro, em Configurações.');
     }
     const body = {
       system_instruction: { parts: [{ text: system }] },
@@ -485,10 +668,10 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       if (keyBad || ![400, 404, 429, 500, 503].includes(r.status)) break;
     }
     if (!r.ok) {
-      if (r.status === 400 && /api key/i.test(errMsg)) throw new Error('Chave inválida. Confira a chave cadastrada.');
+      if (r.status === 400 && /api key/i.test(errMsg)) throw new Error('Chave inválida. Confira a chave em Configurações.');
       if (r.status === 403) throw new Error('Esta chave não tem permissão. Gere uma nova chave no Google AI Studio.');
-      if (r.status === 429) throw new Error('O limite gratuito foi atingido por agora. Aguarde um minuto e tente de novo; se continuar, volte mais tarde.');
-      throw new Error('A IA não conseguiu analisar agora. Tente de novo.');
+      if (r.status === 429) throw new Error('O limite gratuito foi atingido por agora. Aguarde um minuto e tente de novo.');
+      throw new Error('A IA não conseguiu responder agora. Tente de novo.');
     }
     const data = await r.json();
     const cand = (data.candidates || [])[0] || {};
@@ -497,20 +680,23 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     const chunks = ((cand.groundingMetadata || {}).groundingChunks || []).map((c) => c.web).filter((w) => w && w.uri);
     return { text, sources: chunks.slice(0, 5) };
   }
+  const imgPart = (p) => ({ inline_data: { mime_type: p.mediaType, data: p.base64 } });
 
   async function analyze() {
     const out = await callModel({
       system: SYSTEM_ANALISE, json: true,
-      parts: [
-        { inline_data: { mime_type: current.mediaType, data: current.base64 } },
-        { text: 'Descreva esta imagem e transcreva os textos e números.' },
-      ],
+      parts: [imgPart(current), { text: 'Descreva esta imagem e transcreva os textos e números.' }],
     });
     const j = parseJson(out.text);
-    if (!j) return { descricao: out.text, textos: '', tipo_imagem: 'outro', item_identificado: '', confianca: 'baixa' };
+    if (!j) return { resumo: firstSentences(out.text, 2), descricao: out.text, textos: '', tem_texto: false, tipo_imagem: 'outro', item_identificado: '', confianca: 'baixa' };
+    const descricao = asText(j.descricao);
+    const textos = asText(j.textos);
+    const semTexto = /n[aã]o h[aá] texto/i.test(textos);
     return {
-      descricao: asText(j.descricao),
-      textos: asText(j.textos),
+      resumo: asText(j.resumo) || firstSentences(descricao, 2),
+      descricao,
+      textos,
+      tem_texto: (j.tem_texto === true || j.tem_texto === 'true') && !semTexto,
       tipo_imagem: asText(j.tipo_imagem),
       item_identificado: asText(j.item_identificado).trim(),
       confianca: asText(j.confianca).toLowerCase(),
@@ -520,45 +706,51 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
   async function askQuestion(q) {
     const out = await callModel({
       system: SYSTEM_PERGUNTA, json: true, maxTokens: 2048,
-      parts: [
-        { inline_data: { mime_type: current.mediaType, data: current.base64 } },
-        { text: `Pergunta sobre a imagem: ${String(q).slice(0, 500)}` },
-      ],
+      parts: [imgPart(current), { text: `Pergunta sobre a imagem: ${String(q).slice(0, 500)}` }],
     });
     const j = parseJson(out.text);
     return (j && asText(j.resposta)) || out.text;
   }
 
+  // ---------- Consulta do item (preço e informações) ----------
   async function askItem(kind, question) {
     const comPreco = kind === 'preco' || kind === 'onde' || kind === 'alt';
-    const text = `Item: ${itemName}. ${FOCOS[kind] || ''} ${question ? 'Pergunta do usuário: ' + String(question).slice(0, 300) + '.' : ''} ${comPreco ? 'Inclua a faixa de preço e um preço de referência na Amazon e outro no Mercado Livre.' : 'Não inclua preços, a menos que a pergunta peça.'}`;
+    const extras = [];
+    if (refine.estado) extras.push(`Considere apenas produtos ${refine.estado}s.`);
+    if (refine.ordem) extras.push('Informe as opções de menor preço.');
+    if (refine.loja) extras.push(`Priorize preços da loja ${refine.loja}.`);
+    const text = `Item: ${itemName}. ${FOCOS[kind] || ''} ${extras.join(' ')} ${question && kind !== 'preco' ? 'Pergunta do usuário: ' + String(question).slice(0, 300) + '.' : ''} ${comPreco ? 'Inclua a faixa de preço e um preço de referência na Amazon e outro no Mercado Livre.' : 'Não inclua preços, a menos que a pergunta peça.'}`;
     const out = await callModel({ system: SYSTEM_ITEM, grounded: true, maxTokens: 2048, parts: [{ text }] });
     const resumo = tag(out.text, 'resumo') || out.text.replace(/<[^>]+>/g, '').trim();
     const faixa = tag(out.text, 'faixa');
     const amz = tag(out.text, 'amazon');
     const ml = tag(out.text, 'mercadolivre');
     const termo = tag(out.text, 'termo');
-    const lines = [sentence(resumo)];
-    if (faixa) lines.push('Faixa de preço: ' + sentence(faixa));
-    if (amz) lines.push('Na Amazon: ' + sentence(amz));
-    if (ml) lines.push('No Mercado Livre: ' + sentence(ml));
+    const intro = analysis && analysis.confianca === 'alta' ? '' : `Parece ser ${itemName}.`;
+    const lines = [];
+    if (intro) lines.push(intro);
+    if (kind === 'preco') {
+      lines.push(faixa ? `Em lojas grandes e conhecidas, costuma aparecer ${sentence(faixa)}` : 'Não encontrei uma faixa de preço segura.');
+      if (amz) lines.push('Na Amazon: ' + sentence(amz));
+      if (ml) lines.push('No Mercado Livre: ' + sentence(ml));
+      if (resumo) lines.push(sentence(resumo));
+    } else {
+      if (resumo) lines.push(sentence(resumo));
+      if (faixa) lines.push('Faixa de preço: ' + sentence(faixa));
+      if (amz) lines.push('Na Amazon: ' + sentence(amz));
+      if (ml) lines.push('No Mercado Livre: ' + sentence(ml));
+    }
     if (faixa || amz || ml) lines.push('Preços mudam. Confirme na loja. Eu só informo, não faço compras.');
     return { spoken: lines.join(' '), shown: lines.join('\n'), termo, sources: out.sources };
   }
-
-  // ---------- Telas de resultado ----------
-  const allText = () => `Descrição. ${$('outDesc').textContent}. Textos e números. ${$('outTxt').textContent}`;
-  const txtText = () => `Textos e números. ${$('outTxt').textContent}`;
-  const descText = () => `Descrição. ${$('outDesc').textContent}`;
 
   function searchUrl() {
     const term = lastTerm || `${itemName} preço`;
     return 'https://www.google.com/search?q=' + encodeURIComponent(term);
   }
   function showItem(r) {
-    lastItemSpoken = r.spoken;
     lastTerm = r.termo || `${itemName} preço`;
-    $('outItem').textContent = r.shown;
+    setSec('secItem', 'outItem', r.shown);
     const ul = $('outSources');
     ul.innerHTML = '';
     r.sources.forEach((s) => {
@@ -570,97 +762,19 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       li.appendChild(a); ul.appendChild(li);
     });
     $('lnkSearch').href = searchUrl();
-    $('itemBox').classList.remove('hidden');
-  }
-
-  function offerText() {
-    if (!canListen) return '';
-    return itemName
-      ? `Parece ser ${itemName}. Quer saber mais sobre ele? Diga: quanto custa, ou o que é isso. Ou faça uma pergunta sobre a imagem.`
-      : 'Você pode ouvir de novo, ou fazer uma pergunta sobre a imagem.';
-  }
-
-  async function processImage(file, id) {
-    $('result').classList.add('hidden');
-    $('askBox').classList.add('hidden');
-    $('itemBox').classList.add('hidden');
-    $('outAnswer').textContent = '';
-    analysis = null; itemName = ''; itemConfirmed = false; lastTerm = '';
-    setStatus('Analisando a imagem. Aguarde alguns segundos.');
-    const work = (async () => { current = await prepare(file); return await analyze(); })();
-    work.catch(() => {});
-    try {
-      if (assistantOn) await say('Analisando a imagem. Aguarde alguns segundos.', id);
-      const data = await work;
-      chk(id);
-      const img = $('preview');
-      img.src = current.dataUrl; img.style.display = 'block';
-      analysis = data;
-      itemName = data.item_identificado || '';
-      $('outDesc').textContent = data.descricao || 'Sem descrição.';
-      $('outTxt').textContent = data.textos || 'Não há texto nem números visíveis.';
-      img.alt = (data.descricao || 'Imagem analisada').slice(0, 250);
-      $('result').classList.remove('hidden');
-      $('askBox').classList.remove('hidden');
-      setStatus('Pronto. A análise está abaixo.', 'ok');
-      if (assistantOn) {
-        await say(allText(), id);
-        await say(offerText(), id);
-      } else {
-        $('result').focus();
-        if ($('auto').checked) speakNow(allText());
-      }
-      return true;
-    } catch (e) {
-      if (e === CANCEL) throw e;
-      const msg = e.message || 'Algo deu errado. Tente novamente.';
-      setStatus(msg, 'err');
-      if (assistantOn) await say(msg, id);
-      return false;
-    }
-  }
-
-  async function answer(q, id, talk) {
-    if (!current) {
-      const m = 'Ainda não tenho uma imagem. Tire uma foto ou escolha da galeria primeiro.';
-      setStatus(m, 'err');
-      if (talk) await say(m, id);
-      return;
-    }
-    setStatus('Buscando a resposta.');
-    const work = askQuestion(q);
-    work.catch(() => {});
-    if (talk) await say('Um momento.', id);
-    let ans;
-    try { ans = await work; }
-    catch (e) {
-      setStatus(e.message, 'err');
-      if (talk) await say(e.message, id);
-      return;
-    }
-    chk(id);
-    $('outAnswer').textContent = ans;
-    setStatus('Resposta pronta.', 'ok');
-    if (talk) await say(ans, id);
   }
 
   async function consult(kind, id, question) {
-    if (!analysis) { await say('Primeiro preciso de uma imagem. Diga foto ou galeria.', id); return; }
+    if (!analysis) { await say('Primeiro preciso de uma imagem. Diga foto, ou toque no botão Foto.', id); return; }
+    if (kind === 'preco') ctx = 'preco';
     if (!itemName) {
+      if (!(assistantOn && canListen)) { setStatus('Não identifiquei um item principal nesta imagem.', 'err'); return; }
       await say('Não identifiquei um item principal. Diga o nome do item que você quer pesquisar.', id);
       const t = await listen(id);
       if (!t) { await say('Não entendi. Tente de novo.', id); return; }
-      itemName = t; itemConfirmed = true;
-    } else if (!itemConfirmed && analysis.confianca !== 'alta') {
-      const a = await askYesNo(`Parece ser ${itemName}. É isso mesmo?`, id);
-      if (a === 'nao') {
-        await say('Qual é o item? Diga o nome.', id);
-        const t = await listen(id);
-        if (t) itemName = t;
-      }
-      itemConfirmed = true;
+      itemName = t;
     }
-    setStatus('Pesquisando informações sobre o item.');
+    setStatus('Pesquisando…');
     const work = askItem(kind, question);
     work.catch(() => {});
     await say('Pesquisando. Um momento.', id);
@@ -668,66 +782,322 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
     try { r = await work; }
     catch (e) { setStatus(e.message, 'err'); await say(e.message, id); return; }
     chk(id);
-    setStatus('Informações prontas.', 'ok');
+    setStatus('');
     showItem(r);
-    await say(r.spoken, id);
-    const a = await askYesNo('Quer que eu abra a pesquisa na tela?', id);
-    if (a === 'sim') return openSearch(id);
+    showMore(true);
+    await announce(r.spoken, id);
+    if (kind === 'preco') {
+      const n = Number(lsGet('refhints', '0'));
+      if (n < 2 && assistantOn) {
+        lsSet('refhints', String(n + 1));
+        await say('Para refinar, diga: mais barato, só novo, outra loja, ou outro modelo.', id);
+      }
+      if (!itemHinted && analysis.confianca !== 'alta' && assistantOn) {
+        itemHinted = true;
+        await say('Se o item não for esse, diga: não, é, e o nome.', id);
+      }
+    }
   }
 
   async function openSearch(id) {
     if (!itemName && !lastTerm) { await say('Ainda não tenho um item para pesquisar.', id); return; }
     $('lnkSearch').href = searchUrl();
-    $('itemBox').classList.remove('hidden');
     await say(`Abrindo a pesquisa no Google por: ${lastTerm || itemName}.`, id);
     const w = window.open(searchUrl(), '_blank');
     if (w) { try { w.opener = null; } catch {} return 'pause'; }
-    await say('O navegador bloqueou a abertura automática. Toque no botão Abrir pesquisa no Google, abaixo das informações do item.', id);
+    showMore(true);
+    await say('O navegador bloqueou a abertura automática. Toque no botão Abrir pesquisa no Google.', id);
     $('lnkSearch').focus();
     return 'pause';
   }
 
-  // ---------- Interpretação dos comandos de voz ----------
-  async function handle(text, id) {
-    const n = norm(text);
-    const needImg = async () => { await say('Ainda não tenho uma imagem. Diga foto ou galeria.', id); };
+  // ---------- Avaliação de condição ----------
+  const COND_LABEL = {
+    boa: 'Parece em boa condição.',
+    atencao: 'Atenção.',
+    evitar: 'Eu evitaria.',
+    nao_consegui: 'Não consegui avaliar.',
+  };
+  async function evaluateCondition() {
+    const parts = condPhotos.map(imgPart);
+    parts.push({ text: `Item informado: ${itemName || 'não identificado'}. Fotos enviadas: ${condPhotos.length}. ${condNotes.length ? 'Relato da pessoa sobre toque e cheiro: ' + condNotes.join(' | ') + '.' : ''} Avalie a condição.` });
+    const out = await callModel({ system: SYSTEM_COND, json: true, maxTokens: 2048, parts });
+    const j = parseJson(out.text) || {};
+    const cat = asText(j.categoria).toLowerCase();
 
-    if (/\bajuda\b|\bcomandos\b|o que voce (faz|pode)/.test(n)) return say(HELP, id);
-    if (/\b(sair|encerrar|desligar|tchau|ate logo)\b/.test(n)) { await say('Assistente em pausa. Toque no botão Falar com o assistente para continuar.', id); return 'pause'; }
-    if (/galeria|arquivo/.test(n)) {
-      await say('Para escolher da galeria, toque no botão Escolher da galeria, na parte de cima da tela. Quando a análise terminar, eu continuo a conversa.', id);
-      $('btnGallery').focus();
-      return 'pause';
+    if (cat === 'carne_laticinio') {
+      const m = 'Não avalio carnes, peixes, laticínios e ovos por foto. Confira a validade, o cheiro e como foi guardado.';
+      return { spoken: m, tip: '', pending: null, shown: m };
     }
-    if (/\b(foto|fotografar|camera|tirar)\b/.test(n)) {
-      const blob = await captureCamera(id);
-      if (blob) await processImage(blob, id);
+    if (cat === 'remedio') {
+      const m = 'Para remédios, confira a validade e a embalagem com outra pessoa de confiança.';
+      return { spoken: m, tip: '', pending: null, shown: m };
+    }
+
+    let v = asText(j.veredito).toLowerCase();
+    if (!COND_LABEL[v]) v = 'nao_consegui';
+    const conf = asText(j.confianca).toLowerCase();
+    if (v === 'boa' && conf === 'baixa') v = 'atencao';   // na dúvida, mais cautela
+
+    const achados = asList(j.achados).slice(0, 3);
+    const naoVisivel = asList(j.nao_visivel).slice(0, 2);
+    const lines = [COND_LABEL[v]];
+    achados.forEach((a) => lines.push(sentence(a)));
+    if (v === 'boa' && !achados.length) lines.push('Não vejo sinais de problema na foto.');
+    if (naoVisivel.length) lines.push(`Não dá para ver ${naoVisivel.join(' e ')}.`);
+    const nova = j.pedir_nova_foto === true || j.pedir_nova_foto === 'true';
+    if (nova && asText(j.orientacao)) lines.push(sentence(asText(j.orientacao)));
+    if (cat === 'eletronico') lines.push('Não avalio o funcionamento.');
+
+    let tip = ''; let pend = null;
+    const fruta = cat === 'fruta_verdura';
+    if (fruta && v !== 'evitar' && !condNotes.length) {
+      tip = 'Aperte de leve e sinta o cheiro. Depois me diga: está firme ou mole? O cheiro é normal ou azedo?';
+      pend = 'sensorial';
+    } else if (v !== 'evitar' && (v === 'atencao' || v === 'nao_consegui' || nova) && condPhotos.length < 3) {
+      tip = 'Para ter mais certeza, diga próxima foto e mostre outro lado do item.';
+      pend = 'proxima_foto';
+    } else if (fruta || cat === 'alimento_embalado') {
+      tip = 'Isso é só uma ajuda visual. Confie também no seu toque, no cheiro e na validade.';
+    }
+    return { spoken: lines.join(' '), tip, pending: pend, shown: lines.join('\n') + (tip ? '\n' + tip : '') };
+  }
+
+  async function conditionFlow(id, opts) {
+    const fresh = !opts || opts.fresh !== false;
+    if (!current) { await say('Primeiro preciso de uma imagem. Diga foto, ou toque no botão Foto.', id); return; }
+    ctx = 'cond';
+    if (fresh || !condPhotos.length) { condPhotos = [current]; condNotes = []; }
+    setStatus('Avaliando a condição…');
+    const work = evaluateCondition();
+    work.catch(() => {});
+    await say('Avaliando. Um momento.', id);
+    let res;
+    try { res = await work; }
+    catch (e) { setStatus(e.message, 'err'); await say(e.message, id); return; }
+    chk(id);
+    setStatus('');
+    setSec('secCond', 'outCond', res.shown);
+    showMore(true);
+    pending = res.pending;
+    await announce(res.spoken, id);
+    if (res.tip) await say(res.tip, id);
+  }
+
+  async function addPhoto(img, id) {
+    if (!condPhotos.length) condPhotos = [current];
+    if (condPhotos.length < 3) condPhotos.push(img); else condPhotos[2] = img;
+    await conditionFlow(id, { fresh: false });
+  }
+  async function extraPhoto(id) {
+    if (!analysis) { await say('Primeiro preciso de uma imagem. Diga foto.', id); return; }
+    const blob = await captureCamera(id);
+    if (!blob) return;
+    const img = await prepare(blob);
+    chk(id);
+    await addPhoto(img, id);
+  }
+
+  // ---------- Fluxo principal da imagem ----------
+  async function processImage(file, id) {
+    resetResult();
+    setStatus('Analisando a imagem…');
+    const work = (async () => { current = await prepare(file); return await analyze(); })();
+    work.catch(() => {});
+    try {
+      if (assistantOn) await say('Analisando. Um momento.', id);
+      const data = await work;
+      chk(id);
+      analysis = data;
+      itemName = data.item_identificado || '';
+      condPhotos = [current]; condNotes = [];
+      updateStage();
+      $('preview').alt = (data.descricao || 'Imagem analisada').slice(0, 250);
+      setSec('secDesc', 'outDesc', data.descricao || data.resumo);
+      setSec('secTxt', 'outTxt', data.tem_texto ? data.textos : '');
+      $('secAsk').classList.remove('hidden');
+      $('chips').classList.remove('hidden');
+      setStatus('');
+      const resumo = data.resumo || 'Não consegui descrever esta imagem.';
+      lastSpoken = resumo;
+      showCaption(resumo);
+      if (speakEnabled()) {
+        await say(resumo, id);
+        let tail = 'Quer mais detalhes?';
+        if (data.tem_texto) tail += ' Há texto na imagem. Diga ler textos para ouvir.';
+        pending = 'detalhes';
+        await say(tail, id);
+        if (assistantOn) {
+          const h = Number(lsGet('hints', '0'));
+          if (h < 3) {
+            lsSet('hints', String(h + 1));
+            await say('Você também pode dizer: qual o preço, ou está em boas condições.', id);
+          }
+        }
+      }
+      return true;
+    } catch (e) {
+      if (e === CANCEL) throw e;
+      const msg = e.message || 'Algo deu errado. Tente novamente.';
+      setStatus(msg, 'err');
+      showCaption(msg);
+      await say(msg, id);
+      return false;
+    }
+  }
+
+  async function answer(q, id) {
+    if (!current) {
+      const m = 'Ainda não tenho uma imagem. Tire uma foto ou escolha da galeria primeiro.';
+      setStatus(m, 'err');
+      await say(m, id);
       return;
     }
-    if (/mais devagar|mais lento|\bdevagar\b/.test(n)) {
-      const v = Math.max(0.6, Number($('rate').value) - 0.2);
-      $('rate').value = v.toFixed(1); lsSet('rate', $('rate').value); showRate();
-      return say('Certo. Estou falando mais devagar.', id);
+    setStatus('Buscando a resposta…');
+    const work = askQuestion(q);
+    work.catch(() => {});
+    await say('Um momento.', id);
+    let ans;
+    try { ans = await work; }
+    catch (e) { setStatus(e.message, 'err'); await say(e.message, id); return; }
+    chk(id);
+    setStatus('');
+    $('outAnswer').textContent = ans;
+    await announce(ans, id);
+  }
+
+  async function sayDetails(id) {
+    if (!analysis) { await say('Ainda não tenho uma imagem. Diga foto.', id); return; }
+    const d = analysis.descricao || analysis.resumo;
+    lastSpoken = d;
+    showMore(true);
+    await say(d, id);
+  }
+
+  // ---------- Dispatcher dos comandos de voz ----------
+  async function handle(text, id) {
+    const n = norm(text);
+    const st = { ctx, pending, hasAnalysis: !!analysis };
+    const intent = classify(n, st);
+    const needImg = () => say('Ainda não tenho uma imagem. Diga foto, ou toque no botão Foto.', id);
+
+    switch (intent) {
+      case 'ajuda': return say(HELP, id);
+      case 'sair':
+        await say('Assistente em pausa. Toque no botão Falar para continuar.', id);
+        return 'pause';
+      case 'ack':
+        return;
+      case 'correcao': {
+        const m = n.match(/^(?:nao|na verdade)\s+(?:e|eh|seria|era)\s+(?:um|uma|o|a)?\s*(.+)$/);
+        if (m) {
+          itemName = m[1];
+          refine = { estado: '', ordem: '', loja: '' };
+          await say(`Certo. Considerando ${itemName}.`, id);
+          if (ctx === 'preco') return consult('preco', id);
+        }
+        return;
+      }
+      case 'sensorial':
+        condNotes.push(text);
+        pending = null;
+        return conditionFlow(id, { fresh: false });
+      case 'yes': {
+        const p = pending; pending = null;
+        if (p === 'detalhes') return sayDetails(id);
+        if (p === 'proxima_foto') return extraPhoto(id);
+        return;
+      }
+      case 'no':
+        pending = null;
+        return say('Certo. Pode pedir outra coisa quando quiser.', id);
+      case 'galeria':
+        await say('Para escolher da galeria, toque no botão Galeria, na tela. Quando a análise terminar, eu continuo a conversa.', id);
+        $('btnGallery').focus();
+        return 'pause';
+      case 'proxima_foto':
+        return extraPhoto(id);
+      case 'foto': {
+        const blob = await captureCamera(id);
+        if (blob) await processImage(blob, id);
+        return;
+      }
+      case 'devagar': {
+        $('rate').value = Math.max(0.6, Number($('rate').value) - 0.2).toFixed(1); lsSet('rate', $('rate').value); showRate();
+        return say('Certo. Estou falando mais devagar.', id);
+      }
+      case 'rapido': {
+        $('rate').value = Math.min(2, Number($('rate').value) + 0.2).toFixed(1); lsSet('rate', $('rate').value); showRate();
+        return say('Certo. Estou falando mais rápido.', id);
+      }
+      case 'letra_mais': { const nm = setSize(1); return say(`Letra ${nm.toLowerCase()}.`, id); }
+      case 'letra_menos': { const nm = setSize(-1); return say(`Letra ${nm.toLowerCase()}.`, id); }
+      case 'tema_escuro': setTheme('escuro'); return say('Tema escuro.', id);
+      case 'tema_claro': setTheme('claro'); return say('Tema claro.', id);
+      case 'repetir':
+        return lastSpoken ? say(lastSpoken, id) : needImg();
+      case 'textos':
+        if (!analysis) return needImg();
+        if (!analysis.tem_texto) return say('Não há texto nem números visíveis.', id);
+        lastSpoken = `Textos e números. ${analysis.textos}`;
+        showMore(true);
+        return say(lastSpoken, id);
+      case 'detalhes':
+        return sayDetails(id);
+      case 'abrir':
+        return openSearch(id);
+      case 'r_barato':
+        if (!analysis) return needImg();
+        refine.ordem = 'barato';
+        return consult('preco', id);
+      case 'r_novo':
+        if (!analysis) return needImg();
+        refine.estado = 'novo';
+        return consult('preco', id);
+      case 'r_usado':
+        if (!analysis) return needImg();
+        refine.estado = 'usado';
+        return consult('preco', id);
+      case 'r_loja': {
+        if (!analysis) return needImg();
+        await say('Qual loja? Diga o nome.', id);
+        const t = await listen(id);
+        if (!t) return say('Não entendi o nome da loja.', id);
+        refine.loja = t;
+        return consult('preco', id);
+      }
+      case 'r_modelo': {
+        if (!analysis) return needImg();
+        await say('Qual é o nome ou modelo do item?', id);
+        const t = await listen(id);
+        if (!t) return say('Não entendi o nome do item.', id);
+        itemName = t;
+        refine = { estado: '', ordem: '', loja: '' };
+        return consult('preco', id);
+      }
+      case 'cond':
+        return conditionFlow(id);
+      case 'preco':
+        return consult('preco', id, text);
+      case 'onde':
+        return consult('onde', id, text);
+      case 'alt':
+        return consult('alt', id, text);
+      case 'curio':
+        return consult('curio', id, text);
+      case 'info':
+        return consult('info', id, text);
+      case 'oque': {
+        if (!analysis) return needImg();
+        lastSpoken = analysis.resumo;
+        showCaption(analysis.resumo);
+        pending = 'detalhes';
+        await say(analysis.resumo, id);
+        return say('Quer mais detalhes?', id);
+      }
+      default:
+        return answer(text, id);
     }
-    if (/mais rapido|mais depressa|acelera|\brapido\b/.test(n)) {
-      const v = Math.min(2, Number($('rate').value) + 0.2);
-      $('rate').value = v.toFixed(1); lsSet('rate', $('rate').value); showRate();
-      return say('Certo. Estou falando mais rápido.', id);
-    }
-    if (/(so|apenas) (os )?(texto|textos|numeros)|ler (os )?(textos|numeros)/.test(n)) return analysis ? say(txtText(), id) : needImg();
-    if (/(so|apenas) (a )?descricao|ler (a )?descricao/.test(n)) return analysis ? say(descText(), id) : needImg();
-    if (/repet|de novo|ler (tudo|novamente)|ouvir (tudo|novamente)/.test(n)) {
-      if (!analysis) return needImg();
-      return say(lastItemSpoken && /(item|pesquisa|preco)/.test(n) ? lastItemSpoken : allText(), id);
-    }
-    if (/\b(abrir|abre|abra)\b.*(pesquisa|busca)/.test(n)) return openSearch(id);
-    if (/quanto (custa|sai|e)|preco|valor/.test(n)) return consult('preco', id, text);
-    if (/onde (encontro|compro|acho|vende|vendem|posso comprar)|onde comprar/.test(n)) return consult('onde', id, text);
-    if (/parecid|alternativ|similar|mais barato|outras? opcoes/.test(n)) return consult('alt', id, text);
-    if (/curiosidade|conte algo|me conte/.test(n)) return consult('curio', id, text);
-    if (/\bo que e (isso|esse|essa|este|esta)\b|que (item|produto) e\b/.test(n)) return consult('oque', id, text);
-    // Qualquer outra fala vira pergunta sobre a imagem
-    return answer(text, id, true);
   }
 
   async function converse(id) {
@@ -738,13 +1108,13 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       const t = await listen(id);
       if (micDenied) {
         micDenied = false;
-        await say('Não consegui usar o microfone. Verifique a permissão do navegador e toque em Falar com o assistente.', id);
+        await say('Não consegui usar o microfone. Verifique a permissão do navegador e toque em Falar.', id);
         return;
       }
       if (!t) {
         silent += 1;
         if (silent === 1) await say('Estou ouvindo. Diga ajuda se precisar.', id);
-        else if (silent >= 3) { await say('Vou pausar a escuta. Toque no botão Falar com o assistente para continuar.', id); return; }
+        else if (silent >= 3) { await say('Vou pausar a escuta. Toque no botão Falar para continuar.', id); return; }
         continue;
       }
       silent = 0;
@@ -764,30 +1134,39 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
   // ---------- Eventos ----------
   function startAssistant() {
     assistantOn = true;
-    $('startBox').classList.add('hidden');
-    $('assistBar').classList.remove('hidden');
+    setTalkLabel();
     beep(); // libera o áudio do navegador com o toque do usuário
     runFlow(async (id) => {
       const intro = canListen
-        ? 'Olá. Eu sou o assistente do Descritor de Imagens. Diga foto para tirar uma foto, galeria para escolher uma imagem, ou ajuda para ouvir os comandos.'
-        : 'Olá. Eu sou o assistente do Descritor de Imagens. Este navegador não entende comandos de voz, então use os botões da tela. Eu vou ler os resultados em voz alta.';
+        ? 'Olá. Diga foto para tirar uma foto, galeria para escolher uma imagem, ou ajuda para ouvir os comandos.'
+        : 'Olá. Este navegador não entende comandos de voz, então use os botões da tela. Eu leio os resultados em voz alta.';
+      showCaption(intro);
       await say(intro, id);
-      if (!getKey()) { $('keyBox').open = true; await say('Falta cadastrar a chave de acesso da IA. Cole a chave no campo da tela e toque em Salvar.', id); }
+      if (!lsGet('disc', '')) {
+        lsSet('disc', '1');
+        await say('Um aviso rápido: a IA pode errar. Em remédios, dinheiro e contas, confirme com outra pessoa.', id);
+      }
+      if (!getKey()) {
+        const m = 'Falta cadastrar a chave de acesso da IA. Peça a alguém para colar a chave em Configurações.';
+        showCaption(m);
+        await say(m, id);
+        return;
+      }
       await converse(id);
     });
   }
-  $('btnStart').addEventListener('click', startAssistant);
-  $('btnNoVoice').addEventListener('click', () => { $('startBox').classList.add('hidden'); });
   $('btnTalk').addEventListener('click', () => {
+    if (!assistantOn) { startAssistant(); return; }
     beep();
     runFlow(async (id) => { await say('Pode falar.', id); await converse(id); });
   });
   $('btnAssistOff').addEventListener('click', () => {
     cancelAll();
     assistantOn = false;
-    $('assistBar').classList.add('hidden');
-    $('startBox').classList.remove('hidden');
-    speakP('Assistente desligado.');
+    setTalkLabel();
+    showCaption('Assistente de voz desligado. Toque no botão grande para ativar de novo.');
+    closeSettings();
+    if ($('auto').checked) speakP('Assistente desligado.');
   });
 
   $('btnCamera').addEventListener('click', () => $('inCamera').click());
@@ -803,27 +1182,41 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       });
     });
   }
-
-  $('btnAll').addEventListener('click', () => speakNow(allText()));
-  $('btnTxt').addEventListener('click', () => speakNow(txtText()));
-  $('btnDesc').addEventListener('click', () => speakNow(descText()));
-  $('btnReadItem').addEventListener('click', () => speakNow($('outItem').textContent));
-  $('btnStop').addEventListener('click', () => { cancelAll(); });
-  $('btnPause').addEventListener('click', () => {
-    if (!synth) return;
-    if (synth.paused) { synth.resume(); $('btnPause').textContent = '⏸ Pausar'; }
-    else { synth.pause(); $('btnPause').textContent = '▶ Continuar'; }
+  $('btnExtra').addEventListener('click', () => $('inExtra').click());
+  $('inExtra').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    runFlow(async (id) => {
+      const img = await prepare(file);
+      chk(id);
+      await addPhoto(img, id);
+      if (assistantOn) await converse(id);
+    });
   });
+
+  function chipFlow(fn) {
+    runFlow(async (id) => {
+      await fn(id);
+      if (assistantOn && canListen) await converse(id);
+    });
+  }
+  $('btnPrice').addEventListener('click', () => chipFlow((id) => consult('preco', id)));
+  $('btnCond').addEventListener('click', () => chipFlow((id) => conditionFlow(id)));
+
+  $('btnRepeat').addEventListener('click', () => speakNow(lastSpoken || $('capText').textContent));
+  $('btnStop').addEventListener('click', () => cancelAll());
+  $('btnReadDesc').addEventListener('click', () => speakNow($('outDesc').textContent));
+  $('btnReadTxt').addEventListener('click', () => speakNow($('outTxt').textContent));
 
   function askManual() {
     const q = $('question').value.trim();
     if (!q || !current) { setStatus('Escreva ou fale uma pergunta primeiro.', 'err'); return; }
-    runFlow((id) => answer(q, id, assistantOn || $('auto').checked));
+    chipFlow((id) => answer(q, id));
   }
   $('btnAsk').addEventListener('click', askManual);
   $('question').addEventListener('keydown', (e) => { if (e.key === 'Enter') askManual(); });
 
-  // Ditado de uma pergunta pelo botão do campo de texto
   if (!SR) {
     $('btnMic').classList.add('hidden');
     $('btnMic').parentElement.style.gridTemplateColumns = '1fr';
@@ -832,11 +1225,18 @@ Preencha faixa, amazon e mercadolivre apenas quando o pedido envolver preço ou 
       runFlow(async (id) => {
         setStatus('Estou ouvindo. Fale sua pergunta.');
         const t = await listen(id);
+        setStatus('');
         if (!t) { setStatus('Não consegui ouvir. Verifique a permissão do microfone.', 'err'); return; }
         $('question').value = t;
-        await answer(t, id, true);
+        await answer(t, id);
       });
     });
+  }
+
+  // Primeiro uso: sem chave, abre as configurações
+  if (!getKey()) {
+    showCaption('Primeiro, cadastre a chave de acesso da IA.');
+    openSettings();
   }
 })();
 </script>
